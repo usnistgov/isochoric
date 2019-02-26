@@ -155,9 +155,9 @@ class TraceLibrary(object):
             fp.write(header)
             fp.write('\n'.join(self.get_lines()))
 
-library = TraceLibrary()
-
 def SCAD_3D(*, TracerClass, fluids, Tvec, pvec=[], pvec_lowestT=[], Tvec_highestp=[], model_setter=None, HMX = [], pmax=100e6):
+
+    library = TraceLibrary()
 
     class SuperTTracer(TracerClass):
         def __init__(self, T, backend, fluids, p0, rhovec0, lims, *args):

@@ -1,0 +1,6 @@
+[submodule "externals/CoolProp"]
+	path = externals/CoolProp
+	url = https://github.com/CoolProp/CoolProp
+[submodule "externals/pybind11"]
+	path = externals/pybind11
+	url = https://github.com/pybind/pybind11.git

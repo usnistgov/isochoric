@@ -1,0 +1,7 @@
+/build
+/msvc
+/VLEIsoTracer.egg-info
+/dist
+/wrappers/DLL/msvc
+xcode
+/wrappers/DLL/msvc32

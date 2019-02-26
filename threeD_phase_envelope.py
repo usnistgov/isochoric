@@ -157,7 +157,7 @@ class TraceLibrary(object):
 
 library = TraceLibrary()
 
-def SCAD_3D(*, TracerClass, fluids, Tvec, pvec=[], pvec_lowestT=[], Tvec_highestp=[], model_setter=None, HMX = []):
+def SCAD_3D(*, TracerClass, fluids, Tvec, pvec=[], pvec_lowestT=[], Tvec_highestp=[], model_setter=None, HMX = [], pmax=100e6):
 
     class SuperTTracer(TracerClass):
         def __init__(self, T, backend, fluids, p0, rhovec0, lims, *args):
@@ -212,7 +212,7 @@ def SCAD_3D(*, TracerClass, fluids, Tvec, pvec=[], pvec_lowestT=[], Tvec_highest
             try:
                 tracer = TracerClass(TracerClass.imposed_variable.IMPOSED_T, T, backend, fluids, *HMX)
                 tracer.set_forwards_integration(forwards)
-                tracer.set_maximum_pressure(100e6)
+                tracer.set_maximum_pressure(pmax)
                 tracer.polishing(True)
                 tracer.trace()
                 if model_setter is not None:
@@ -237,7 +237,6 @@ def SCAD_3D(*, TracerClass, fluids, Tvec, pvec=[], pvec_lowestT=[], Tvec_highest
                 tracer = TracerClass(TracerClass.imposed_variable.IMPOSED_P, p, backend, fluids, *HMX)
                 tracer.set_forwards_integration(forwards)
                 tracer.set_stepping_variable(TracerClass.stepping_variable.STEP_IN_RHO0)
-                tracer.set_maximum_pressure(100e6)
                 tracer.polishing(True)
                 tracer.trace()
                 if model_setter is not None:

@@ -1,10 +1,11 @@
 """
 Python 3+ only
 """
-import os, json, time
-import pandas, scipy.interpolate
+import os, json, time, sys
 
-import sys, matplotlib.pyplot as plt, numpy as np
+import pandas, scipy.interpolate
+import matplotlib.pyplot as plt, numpy as np
+
 import VLEIsoTracer as vle
 
 CC = vle.AbstractState('HEOS','Ethane&n-Octane')
@@ -203,7 +204,9 @@ def SCAD_3D(*, TracerClass, fluids, Tvec, pvec=[], pvec_lowestT=[], Tvec_highest
         def determine_integration_type(self):
             return TracerClass.stepping_variable.STEP_IN_RHO0
 
-    backend = 'HEOS'
+    backend = 'HEOS' # This is ignored for REFPROP wrapper class
+    tracer = TracerClass(TracerClass.imposed_variable.IMPOSED_T, Tvec[0], backend, fluids, *HMX)
+    print(tracer.get_binary_interaction_double(0,1,'betaT'))
 
     # Build the isotherms
     for T in Tvec:
@@ -389,11 +392,12 @@ def plot_N2_NH3():
         Tvec=Tvec,
         pvec_lowestT=pvec,
         Tvec_highestp=Tvec,
+        pmax=100e7,
         HMX = [os.path.join(os.path.abspath('..'), 'HMX.BNC')]
     )
 
 if __name__=='__main__':
-    vle.load_REFPROP("c:/Program Files (x86)/REFPROP10")    
+    vle.load_REFPROP("D:/Program Files (x86)/REFPROP")
     # plot_propane_octane()
     plot_SO2_N2()
     # plot_N2_NH3()

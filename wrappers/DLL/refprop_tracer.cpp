@@ -244,6 +244,28 @@ public:
         state.rhovecV = Eigen::Map<Eigen::ArrayXd>(&rhovecV[0], rhovecV.size());
         return state;
     };
+
+    double get_binary_interaction_double(int i, int j, const std::string &parameter){
+        using namespace REFPROP_lib; 
+        long icomp = static_cast<int>(i)+1, jcomp = static_cast<int>(j)+1;
+        char hmodij[4], hfmix[255], hbinp[255], hfij[255], hmxrul[255];
+        double fij[6];
+
+        // Get the current state
+        GETKTVdll(icomp, jcomp, hmodij, fij, hfmix, hfij, hbinp, hmxrul, 3, 255, 255, 255, 255);
+
+        double val;
+        if (parameter == "betaT"){ val = fij[0];}
+        else if (parameter == "gammaT"){ val = fij[1]; }
+        else if (parameter == "betaV"){ val = fij[2]; }
+        else if (parameter == "gammaV"){ val = fij[3]; }
+        else if (parameter == "Fij"){ val = fij[4]; }
+        else{
+            throw ValueError(format(" I don't know what to do with your parameter [%s]", parameter.c_str()));
+            return _HUGE;
+        }
+        return val;
+    }
 };
 
 std::vector<std::string> split_string(const std::string &s, const std::string &delim) {
@@ -432,6 +454,7 @@ void init_REFPROPisochoricthermo(py::module &m) {
     py::class_<REFPROPIsolineTracer, AbstractIsolineTracer<double>, PyREFPROPIsolineTracer >(m, "REFPROPIsolineTracer")
         .def(py::init<AbstractIsolineTracer<double>::imposed_variable_types, double, const std::string &, const std::vector<std::string> &, const std::string&>())
         .def(py::init<AbstractIsolineTracer<double>::imposed_variable_types, double, const std::string &, const std::vector<std::string> &>())
+        .def("get_binary_interaction_double", &REFPROPIsolineTracer::get_binary_interaction_double)
         ;
 
     m.def("load_REFPROP", [](const std::string &path) {

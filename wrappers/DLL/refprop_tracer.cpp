@@ -54,7 +54,7 @@ public:
     {
         using namespace REFPROP_lib;
         assert(REFPROP_lib::SETUPdll != nullptr);
-        long nc = 2, ierr = 0; char hrf[10000], hmx[255], hdef[4] = "DEF", herr[255];
+        int nc = 2, ierr = 0; char hrf[10000], hmx[255], hdef[4] = "DEF", herr[255];
         std::string fldsjoined = strjoin(fluids, "|");
         strcpy(hrf, fldsjoined.c_str());
         strcpy(hmx, HMX.c_str());
@@ -80,7 +80,7 @@ public:
     const std::vector<std::string> get_names() const override {
         using namespace REFPROP_lib;
         std::vector<std::string> names(2);
-        for (long icomp = 1; icomp <= 2; ++icomp){
+        for (int icomp = 1; icomp <= 2; ++icomp){
             char hnam[12], hn80[80], hcasn[12];
             NAMEdll(icomp, hnam, hn80, hcasn, 12, 80, 12);
             names[icomp-1] = hnam;
@@ -90,7 +90,7 @@ public:
     const std::vector<double> get_Tcvec() const override {
         using namespace REFPROP_lib;
         std::vector<double> Tcvec(2);
-        for (long icomp = 1; icomp <= 2; ++icomp) {
+        for (int icomp = 1; icomp <= 2; ++icomp) {
             double wmm = -1, Ttrp = -1, Tnbpt = -1, Tc = -1, Pc = -1, Dc = -1, Zc = -1, acf = -1, dip = -1, Rgas = -1;
             INFOdll(icomp, wmm, Ttrp, Tnbpt, Tc, Pc, Dc, Zc, acf, dip, Rgas);
             Tcvec[icomp-1]=Tc;
@@ -100,7 +100,7 @@ public:
     const std::vector<double> get_pcvec() const override {
         using namespace REFPROP_lib;
         std::vector<double> pcvec(2);
-        for (long icomp = 1; icomp <= 2; ++icomp) {
+        for (int icomp = 1; icomp <= 2; ++icomp) {
             double wmm = -1, Ttrp = -1, Tnbpt = -1, Tc = -1, Pc = -1, Dc = -1, Zc = -1, acf = -1, dip = -1, Rgas = -1;
             INFOdll(icomp, wmm, Ttrp, Tnbpt, Tc, Pc, Dc, Zc, acf, dip, Rgas);
             pcvec[icomp - 1] = Pc*1000;
@@ -128,7 +128,7 @@ public:
         if (name2 != "Q"){ throw ValueError("name2 must be Q"); }
         std::vector<double> z(20, 0.0);
         z[index] = 1; z[1-index] = 0;
-        long ncomp = index +1;
+        int ncomp = index +1;
         PUREFLDdll(ncomp);
         double p_kPa, T, rho_mol_L, rhoLmol_L, rhoVmol_L, emol, hmol, smol, cvmol, cpmol, w;
         std::vector<double> x_liq(2), x_vap(2);  // Saturation terms
@@ -138,8 +138,8 @@ public:
             //     kq--flag specifying units for input quality
             //         kq = 1 quality on MOLAR basis [moles vapor/total moles]
             //         kq = 2 quality on MASS basis [mass vapor/total mass]
-            long kq = 1;
-            long ierr = 0; char herr[255];
+            int kq = 1;
+            int ierr = 0; char herr[255];
             p_kPa = val1 / 1000.0; double q = val2;
             // Use flash routine to find properties
             PQFLSHdll(p_kPa, q, &(z[0]), kq, T, rho_mol_L,
@@ -154,8 +154,8 @@ public:
             //     kq--flag specifying units for input quality
             //         kq = 1 quality on MOLAR basis [moles vapor/total moles]
             //         kq = 2 quality on MASS basis [mass vapor/total mass]
-            long kq = 1;
-            long ierr = 0; char herr[255];
+            int kq = 1;
+            int ierr = 0; char herr[255];
             T = val1; double q = val2;
             // Use flash routine to find properties
             TQFLSHdll(T, q, &(z[0]), kq, p_kPa, rho_mol_L,
@@ -247,7 +247,7 @@ public:
 
     double get_binary_interaction_double(int i, int j, const std::string &parameter){
         using namespace REFPROP_lib; 
-        long icomp = static_cast<int>(i)+1, jcomp = static_cast<int>(j)+1;
+        int icomp = static_cast<int>(i)+1, jcomp = static_cast<int>(j)+1;
         char hmodij[4], hfmix[255], hbinp[255], hfij[255], hmxrul[255];
         double fij[6];
 

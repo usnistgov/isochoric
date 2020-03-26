@@ -27,8 +27,8 @@ public:
         m_vals.delta = rhovec.sum() / m_rhor;
         double rho = m_vals.delta*m_rhor, rho_molL = rho / 1000;
 
-        for (long itau = 0; itau < 3; ++itau) {
-            for (long idelta = 0; idelta < 3; ++idelta) {
+        for (int itau = 0; itau < 3; ++itau) {
+            for (int idelta = 0; idelta < 3; ++idelta) {
                 double Arval, A0val;
                 PHI0dll(itau, idelta, const_cast<double&>(T), rho_molL, z.data(), A0val);
                 PHIXdll(itau, idelta, m_vals.tau, m_vals.delta, z.data(), Arval);
@@ -40,7 +40,7 @@ public:
         m_mats.resize(N);
 
         Eigen::ArrayXd rhovec_molL = rhovec / 1000;
-        double Tr_rho, rhor_rho; long ierr = 0; char herr[255] = "";
+        double Tr_rho, rhor_rho; int ierr = 0; char herr[255] = "";
 
         /*
         subroutine RDXHMX (ix,icmp,icmp2,z,Tred,Dred,ierr,herr)
@@ -75,10 +75,10 @@ public:
         double drhor_dvr = -POW2(m_rhor);
 
         // First partials for each component
-        long ix = 1, jj = 0;
+        int ix = 1, jj = 0;
         m_dTr_dxi.resize(N); m_drhor_dxi.resize(N);
         m_dTr_drhoi.resize(N); m_drhor_drhoi.resize(N);
-        for (long i = 1; i <= N; ++i) {
+        for (int i = 1; i <= N; ++i) {
             double dvr_dxi = -1;
             RDXHMXdll(ix, i, jj, const_cast<Eigen::ArrayXd&>(z).data(), m_dTr_dxi[i - 1], dvr_dxi, ierr, herr, 255);
             dvr_dxi /= 1000.0; // REFPROP returns dv/dxi, convert to density derivative and convert from mol/L to mol/m^3
@@ -88,7 +88,7 @@ public:
         // Second partials for each component
         m_d2Tr_dxidxj.resize(N, N); m_d2rhor_dxidxj.resize(N, N);
         m_d2Tr_drhoidrhoj.resize(N, N); m_d2rhor_drhoidrhoj.resize(N, N);
-        for (long i = 1; i <= N; ++i) {
+        for (int i = 1; i <= N; ++i) {
             double d2vrdxi2 = -1;
             ix = 2; RDXHMXdll(ix, i, jj, const_cast<Eigen::ArrayXd&>(z).data(), m_d2Tr_dxidxj(i - 1, i - 1), d2vrdxi2, ierr, herr, 255);
             d2vrdxi2 /= 1000.0; // From [L/mol] to [m^3/mol]
@@ -96,8 +96,8 @@ public:
             m_d2rhor_dxidxj(i - 1, i - 1) = d2vrdxi2*drhor_dvr + 2 * POW3(m_rhor)*POW2(dvr_dxi);
         }
         // Cross partials
-        for (long i = 1; i <= N; ++i) {
-            for (long j = i + 1; j <= N; ++j) {
+        for (int i = 1; i <= N; ++i) {
+            for (int j = i + 1; j <= N; ++j) {
                 double d2vrdxidxj = -1;
                 ix = 11; RDXHMXdll(ix, i, j, const_cast<Eigen::ArrayXd&>(z).data(), m_d2Tr_dxidxj(i - 1, j - 1), d2vrdxidxj, ierr, herr, 255);
                 d2vrdxidxj /= 1000.0; // From [L/mol] to [m^3/mol]
@@ -109,13 +109,13 @@ public:
             }
         }
 
-        ix = -100; long ii = 1; jj = 1;
+        ix = -100; int ii = 1; jj = 1;
         RDXHMXdll(ix, ii, jj, const_cast<Eigen::ArrayXd&>(rhovec_molL).data(), Tr_rho, rhor_rho, ierr, herr, 255);
 
         m_dTr_drhoi.resize(N); m_drhor_drhoi.resize(N);
-        double dT_drhoival = -1, drhorrho_drhoival = -1, d2T_drhoi2val = -1, d2rhorrho2_drhoi2val = -1; long dummy = 0;
+        double dT_drhoival = -1, drhorrho_drhoival = -1, d2T_drhoi2val = -1, d2rhorrho2_drhoi2val = -1; int dummy = 0;
 
-        for (long i = 1; i <= N; ++i) {
+        for (int i = 1; i <= N; ++i) {
             ix = -101;
             RDXHMXdll(ix, i, dummy, const_cast<Eigen::ArrayXd&>(rhovec_molL).data(), dT_drhoival, drhorrho_drhoival, ierr, herr, 255);
             m_drhor_drhoi(i - 1) = 2 * rho_molL*rhor_rho + POW2(rho_molL)*drhorrho_drhoival;
@@ -124,7 +124,7 @@ public:
             RDXHMXdll(ix, i, dummy, const_cast<Eigen::ArrayXd&>(rhovec_molL).data(), d2T_drhoi2val, d2rhorrho2_drhoi2val, ierr, herr, 255);
             m_d2Tr_drhoidrhoj(i - 1, i - 1) = ((rho_molL*d2T_drhoi2val - 4 * dT_drhoival) / POW3(rho_molL) + 6 * Tr_rho / POW4(rho_molL)) / 1e6; // division by 1e6 is for conversion from [K/(mol/L)]^2 to [K/(mol/m^3)]^2
             m_d2rhor_drhoidrhoj(i - 1, i - 1) = (4 * rho_molL*drhorrho_drhoival + 2 * rhor_rho + POW2(rho_molL)*d2rhorrho2_drhoi2val) / 1000; // division by 1000 is for conversion from [K/(mol/L)] to [K/(mol/m^3)]
-            for (long j = i + 1; j <= N; ++j) {
+            for (int j = i + 1; j <= N; ++j) {
                 double dT_drhojval = -1, drhorrho_drhojval = -1, d2T_drhoidrhojval = -1, d2rhorrho2_drhoidrhojval = -1;
                 ix = -101;
                 RDXHMXdll(ix, j, dummy, const_cast<Eigen::ArrayXd&>(rhovec_molL).data(), dT_drhojval, drhorrho_drhojval, ierr, herr, 255);
@@ -138,12 +138,12 @@ public:
         }
         {
             // Call PHIDERVdll and force derivatives to get cached
-            long iderv = 2; double _T = T; long ierr = 0; char herr[255];
+            int iderv = 2; double _T = T; int ierr = 0; char herr[255];
             Eigen::ArrayXd dadn(20), dnadn(20);
             PHIDERVdll(iderv, _T, rho_molL, z.data(), dadn.data(), dnadn.data(), ierr, herr, 255);
         }
         {
-            double dbl; char hstr[255], herr[255]; long iset = 0 /*0:get,1:set*/, icomp = 1, jcomp = 1, ilng = 1, ierr = 0;
+            double dbl; char hstr[255], herr[255]; int iset = 0 /*0:get,1:set*/, icomp = 1, jcomp = 1, ilng = 1, ierr = 0;
             Eigen::ArrayXd arr(100);
             {
                 char hvr[255] = "dadxi";
@@ -162,7 +162,7 @@ public:
             }
             {
                 char hvr[255] = "dadxij";
-                for (long icomp = 1; icomp <= N; ++icomp) {
+                for (int icomp = 1; icomp <= N; ++icomp) {
                     Eigen::ArrayXd buffer(30);
                     PASSCMNdll(hvr, iset, icomp, jcomp, hstr, ilng, dbl, buffer.data(), ierr, herr, 255, 255, 255);
                     m_mats.d2alphar_dxidxj__consttaudelta.row(icomp - 1).head(N) = buffer.head(N);

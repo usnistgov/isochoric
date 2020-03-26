@@ -38,8 +38,9 @@ if (ISOCHORIC_ALL)
     add_executable (check_cubics "${CMAKE_CURRENT_SOURCE_DIR}/src/check_cubics.cpp" )
     target_link_libraries (check_cubics CoolProp)
 
-    add_executable (catch_tests "${CMAKE_CURRENT_SOURCE_DIR}/catch_tests/catch_tests.cpp" )
+    add_executable (catch_tests "${CMAKE_CURRENT_SOURCE_DIR}/src/catch_tests/catch_tests.cpp" )
     target_include_directories(catch_tests PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/externals/CoolProp/externals/Catch/single_include" "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_link_libraries (catch_tests CoolProp)
 
     # ----------
     # Standalone

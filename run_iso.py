@@ -35,7 +35,7 @@ def lowTerror(polishing):
     T = 230
     fluids = ['n-Hexane','n-Octane']
     fig, (ax1,ax2) = plt.subplots(2,1,figsize=(3.5,4),sharex= True)
-    backend = 'HEOS'
+    backend = 'PR'
 
     for err, ms in [[1e-3,'^-'],[1e-9,'o-']]:
         data = None
@@ -60,6 +60,7 @@ def lowTerror(polishing):
             chempoterr = np.abs(np.array(data.chempotr0L) - np.array(data.chempotr0V) + R*T*np.log(rhoL0/rhoV0))
             chempoterr2 = np.abs(np.array(data.chempot0L) - np.array(data.chempot0V))
             ax1.plot(x[0:-1], perr[0:-1], ms, label = lbl)
+            ax2.plot(x[0:-1], chempoterr[0:-1], ms, label = lbl)
             ax2.plot(x[0:-1], chempoterr2[0:-1], ms, label = lbl)
 
         except BaseException as BE:
@@ -619,6 +620,7 @@ def plotly_surface(fluids, Tvec, pvec):
     plotly.offline.plot(fig, filename='phase_envelope-'+'-'.join(fluids)+'.html', validate=True)
 
 if __name__=='__main__':
+    vle.PropsSI('Dmolar','T',230,'Q',0,'n-Hexane')
     lowTerror(polishing = True)
     lowTerror(polishing = False)
     # lowTSO2Water()

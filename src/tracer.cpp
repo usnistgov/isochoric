@@ -38,6 +38,8 @@ PYBIND11_MODULE(VLEIsoTracer, m) {
         .def("d_dpsir_ddelta_drhoi__constrhoj", &MixDerivs<double>::d_dpsir_ddelta_drhoi__constrhoj)
         .def("d_dpsir_dtau_drhoi__constrhoj", &MixDerivs<double>::d_dpsir_dtau_drhoi__constrhoj)
         .def("d_dpsir_dxm_drhoi__constTrhoi", &MixDerivs<double>::d_dpsir_dxm_drhoi__constTrhoi)
+        .def_readonly("T", &MixDerivs<double>::T)
+        .def_readonly("R", &MixDerivs<double>::R)
         .def_readonly("Tr", &MixDerivs<double>::Tr)
         .def_readonly("rhor", &MixDerivs<double>::rhor)
         ;

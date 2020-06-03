@@ -11,6 +11,9 @@
 bool my_load_REFPROP(std::string &err, const std::string &shared_library_path = "", const std::string &shared_library_name = "") {
     return REFPROP_lib::load_REFPROP(err, shared_library_path, shared_library_name);
 }
+bool my_unload_REFPROP(std::string &err) {
+    return REFPROP_lib::unload_REFPROP(err);
+}
 bool is_hooked() {
     return REFPROP_lib::SETUPdll != nullptr;
 }

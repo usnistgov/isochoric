@@ -43,6 +43,7 @@ struct fpu_reset_guard {
 };
 
 extern bool my_load_REFPROP(std::string &err, const std::string &shared_library_path = "", const std::string &shared_library_name = "");
+extern bool my_unload_REFPROP(std::string &err);
 extern bool is_hooked();
 
 class REFPROPIsolineTracer : public AbstractIsolineTracer<double> {
@@ -467,6 +468,13 @@ void init_REFPROPisochoricthermo(py::module &m) {
         strcpy(RPpath, path.c_str());
         REFPROP_lib::SETPATHdll(RPpath, 255);
 
+    }
+    );
+
+    m.def("unload_REFPROP", []() {
+        std::string err = "";
+        bool did_unload = my_unload_REFPROP(err);
+        if (!did_unload) { throw CoolProp::ValueError("Unable to unload REFPROP DLL with error: " + err); }
     }
     );
 }

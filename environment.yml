@@ -1,0 +1,9 @@
+name: isochoric
+dependencies:
+  - python=3.8
+  - matplotlib
+  - pip
+  - jupyter
+  - notebook
+  - pip:
+    - "git+git://github.com/usnistgov/isochoric.git"

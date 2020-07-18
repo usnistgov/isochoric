@@ -6,4 +6,5 @@ dependencies:
   - jupyter
   - notebook
   - pip:
+    - ipywidgets
     - "git+git://github.com/usnistgov/isochoric.git"

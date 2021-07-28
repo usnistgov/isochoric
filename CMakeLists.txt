@@ -41,6 +41,7 @@ if (ISOCHORIC_ALL)
     add_executable (catch_tests "${CMAKE_CURRENT_SOURCE_DIR}/src/catch_tests/catch_tests.cpp" )
     target_include_directories(catch_tests PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/externals/CoolProp/externals/Catch/single_include" "${CMAKE_CURRENT_SOURCE_DIR}/include")
     target_link_libraries (catch_tests CoolProp)
+    add_test(catch catch_tests)
 
     # ----------
     # Standalone

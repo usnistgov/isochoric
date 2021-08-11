@@ -60,7 +60,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='VLEIsoTracer',
-    version='0.9.0',
+    version='0.9.1',
     author='Ian Bell',
     author_email='ian.bell@nist.gov',
     description='Tracer for isolines of VLE phase envelopes',

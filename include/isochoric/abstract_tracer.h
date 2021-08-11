@@ -73,6 +73,9 @@ protected:
     std::chrono::high_resolution_clock::time_point startTime;
     int m_premature_termination_code = 0;
     bool m_termination_requested = false;
+    int m_min_stepsize_counter = 0;
+
+    double hmin = 1e-6, hmax = 10000000;
 
     /// Carry out some common initialization
     void common_init() {
@@ -83,6 +86,7 @@ protected:
         m_termination_reason = "";
         m_premature_termination_code = 0;
         m_termination_requested = false;
+        m_min_stepsize_counter = 0;
     }
     EigenArray drhoLdt_old, drhoVdt_old,  drhovec_dtL_store, drhovec_dtV_store;
 public:
@@ -553,7 +557,12 @@ public:
     /// After a step is taken, do polishing if required and cache values
     virtual void post_step_callback(TYPE t, TYPE h, std::vector<TYPE> &rhovec)
     {
-
+        if (std::abs(h-hmin) < 1e-14*hmin) {
+            m_min_stepsize_counter++;
+        }
+        else{
+            m_min_stepsize_counter = 0;
+        }
         // Do the polishing if requested
         if (!m_disable_polish) {
             if ((imposed_variable == IMPOSED_T || imposed_variable == IMPOSED_P) && (mode == STEP_IN_RHO0 || mode == STEP_IN_RHO1 || mode == STEP_IN_P)) {
@@ -731,6 +740,12 @@ public:
                 return true;
             }
         }
+        // Check if the stepsize is stuck at the minimum value
+        if (m_min_stepsize_counter > 10) {
+            m_termination_reason = std::to_string(m_min_stepsize_counter) + " steps in a row of minimum size";
+            m_premature_termination_code = 106;
+            return true;
+        }
         return false;
     };
 
@@ -810,7 +825,7 @@ public:
         TYPE step_epsilon = (get_allowable_error() > 0) ? get_allowable_error() : 1e-8;
 
         // Carry out the integration
-        double hmin = 1e-6, hmax = 10000000;
+        
         bool aborted = ODEIntegrators::AdaptiveRK54(*this, xstart, xend, hmin, hmax, step_epsilon, 1.0);
 
         // If it did not prematurely terminate, store a success message

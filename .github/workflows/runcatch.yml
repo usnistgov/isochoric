@@ -15,10 +15,12 @@ jobs:
     - name: checkout submodules
       run: git submodule update --init --recursive
     - name: mkdir
-      run: mkdir -p isochoric/build && cd isochoric/build
+      run: mkdir -p build && cd isochoric/build
     - name: cmake config
       run: cd isochoric/build && cmake .. -DCMAKE_BUILD_TYPE=Release -DISOCHORIC_ALL=ON
     - name: cmake make
-      run: cmake --build isochoric/build --config Release
+      run: cd isochoric/build && cmake --build . --config Release
     - name: run Catch tests
       run: cd isochoric/build && ctest --verbose
+    - name: test build wheel
+      run: cd isochoric && pip install wheel && pip -vvv wheel .

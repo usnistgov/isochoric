@@ -35,7 +35,7 @@ jobs:
       - name: build wheel
         run: |
           pip install wheel
-          pip wheel .
+          pip -vvv wheel -w dist .
       - name: upload wheel
         run: |
           pip install twine

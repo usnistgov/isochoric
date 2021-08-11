@@ -12,8 +12,6 @@ if (NOT ISOCHORIC_NO_REFPROP)
     file(GLOB APP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/wrappers/DLL/*.cpp")
 endif()
 
-find_package (Python COMPONENTS Interpreter Development)
-
 # ----------------------------
 # Build pybind11 python module
 # ----------------------------
@@ -34,8 +32,8 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/externals/CoolProp/externals/Ei
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 if (ISOCHORIC_ALL)
-    add_executable (tests "${CMAKE_CURRENT_SOURCE_DIR}/src/tests.cpp" )
-    target_link_libraries (tests CoolProp)
+    #add_executable (tests "${CMAKE_CURRENT_SOURCE_DIR}/src/tests.cpp" )
+    #target_link_libraries (tests CoolProp)
     
     add_executable (check_cubics "${CMAKE_CURRENT_SOURCE_DIR}/src/check_cubics.cpp" )
     target_link_libraries (check_cubics CoolProp)

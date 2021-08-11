@@ -285,12 +285,11 @@ public:
                     xmin = m_initial_state.rhovecL[0]; xmax = 0.999*rhomolarmax;
                 }
                 else {
-                    // Initialization is already complete, and we have defined the density at the
-                    // endpoint from the initialization.  Thus we can use that density, and
-                    // then walk backwards to zero(ish).  In the initial state, we are
-                    // close to the density of pure component #0
-                    xmin = m_initial_state.rhovecL[0]; xmax = m_initial_state.rhovecL[0]*0.0001;
-                    assert(xmin > xmax);
+                    // We start off at pure first component, and therefore the concentration of first component
+                    // is known. At the end of the tracing, we have arrived at pure second component, so concentration
+                    // of first component is almost zero
+                    xmax = m_initial_state.rhovecL[0]; xmin = 1e-6;
+                    assert(xmax > xmin);
                 }
             }
             else if (mode == AbstractIsolineTracer::STEP_IN_RHO1) {
@@ -301,12 +300,17 @@ public:
                     xmax = 1e-6; xmin = 0.999*rhomolarmax;
                 }
                 else {
-                    // Initialization is already complete, and we have defined the density at the
-                    // endpoint from the initialization.  Thus we can use that density, and
-                    // then walk backwards to zero(ish).  In the initial state, we are
-                    // close to the density of pure component #0
-                    xmax = m_initial_state.rhovecL[1]; xmin = m_initial_state.rhovecL[0]*1000;
-                    assert(xmin > xmax);
+                    // We start off at pure first component, and therefore the concentration of second component
+                    // is zero initially. At the end of the tracing, we have arrived at pure second component
+                    
+                    /// At the end of the isotherm, we have arrived at pure component #2 (with index 1)
+                    if (m_T > get_Tcvec()[1]) {
+                        throw ValueError("Cannot start isotherm because we are marching in RHO1 and temperature is above Tcrit of component");
+                    }
+                    rhomolarmax = pure_sat_call("Dmolar", "T", m_T, "Q", 0, 1);
+                    if (!ValidNumber(rhomolarmax)) { throw ValueError("Cannot start isotherm; temperature out of range?"); }
+                    xmin = m_initial_state.rhovecL[1]; xmax = 0.999*rhomolarmax;
+                    assert(xmin < xmax);
                 }
             }
             else if (mode == AbstractIsolineTracer::STEP_PARAMETRIC) {

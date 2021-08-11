@@ -15,7 +15,7 @@ jobs:
     - name: checkout submodules
       run: git submodule update --init --recursive
     - name: mkdir
-      run: mkdir -p build && cd isochoric/build
+      run: mkdir -p isochoric/build && cd isochoric/build
     - name: cmake config
       run: cd isochoric/build && cmake .. -DCMAKE_BUILD_TYPE=Release -DISOCHORIC_ALL=ON
     - name: cmake make

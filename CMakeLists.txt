@@ -12,6 +12,8 @@ if (NOT ISOCHORIC_NO_REFPROP)
     file(GLOB APP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/wrappers/DLL/*.cpp")
 endif()
 
+find_package (Python COMPONENTS Interpreter Development)
+
 # ----------------------------
 # Build pybind11 python module
 # ----------------------------

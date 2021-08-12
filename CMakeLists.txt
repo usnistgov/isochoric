@@ -6,6 +6,7 @@ set(COOLPROP_STATIC_LIBRARY true CACHE INTERNAL "Build CoolProp static library")
 add_subdirectory ("${CMAKE_CURRENT_SOURCE_DIR}/externals/CoolProp")
 set_property(TARGET CoolProp PROPERTY POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 14)
+enable_testing()
 
 set(APP_SOURCES)
 if (NOT ISOCHORIC_NO_REFPROP)

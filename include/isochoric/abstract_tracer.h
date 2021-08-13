@@ -408,7 +408,7 @@ public:
             }
 
             Eigen::MatrixXd drhovec_dpV = PSIVstar.fullPivHouseholderQr().solve(PSILstar*drhovec_dpL);
-            return std::make_tuple(drhovec_dpL, drhovec_dpV, PSIL, PSIV);
+            return std::make_tuple(drhovec_dpL, drhovec_dpV, PSILstar, PSIVstar);
         }
         else{
             // "Normal" evaluation, all concentrations are greater than zero

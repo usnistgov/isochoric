@@ -202,14 +202,14 @@ public:
         }
 
         std::vector<double> rho(4, 0);
-        std::size_t imposed_index = (m_forwards_integration) ? 0 : 1;
-        // Start off at basically pure of component #1, with just a little bit of component #0
-        rho[imposed_index] = 1e-6; // x[0]*rho' = rho[0]
-        rho[1 - imposed_index] = (g.rhomolar_liq - rho[0]);
-        rho[2] = rho[0] / g.rhomolar_liq*g.rhomolar_vap;
-        rho[3] = rho[1] / g.rhomolar_liq*g.rhomolar_vap;
+        std::size_t pure_index = (m_forwards_integration) ? 0 : 1;
+        // Start off at pure
+        rho[1-pure_index] = g.rhomolar_liq; // x[0]*rho' = rho[0]
+        rho[pure_index] = 0;
+        rho[2+1-pure_index] = g.rhomolar_vap;
+        rho[2+pure_index] = 0;
 
-        if (imposed_variable == IMPOSED_T) {
+        /*if (imposed_variable == IMPOSED_T) {
             bool ok = false;
             IsothermVLEResiduals<> resid(get_derivs_factory(), imposed_value, rho[imposed_index], imposed_index);
             for(double w = 1; w > 0.2; w -= 0.2){
@@ -239,8 +239,8 @@ public:
             std::vector<double> lnrhovec = std::vector<double>(outvals.begin() + 1, outvals.end());
             rhovec.resize(lnrhovec.size());
             for (std::size_t i = 0; i < rhovec.size(); ++i) { rhovec[i] = exp(lnrhovec[i]); }
-        }
-        std::vector<double> rhovecL(rhovec.begin(), rhovec.begin() + N), rhovecV(rhovec.begin() + N, rhovec.end());
+        }*/
+        std::vector<double> rhovecL(rho.begin(), rho.begin() + N), rhovecV(rho.begin() + N, rho.end());
         state.rhovecL = Eigen::Map<Eigen::ArrayXd>(&rhovecL[0], rhovecL.size());
         state.rhovecV = Eigen::Map<Eigen::ArrayXd>(&rhovecV[0], rhovecV.size());
         return state;

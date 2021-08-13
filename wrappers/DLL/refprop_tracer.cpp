@@ -185,8 +185,8 @@ public:
         std::vector<double> rhovec(2 * N);
 
         GuessesStructure g;
-        // For forward integration, we start at almost pure component #1
-        // For backwards integration, we start at almost pure component #0
+        // For forward integration, we start at almost pure second component and end at almost pure first component
+        // For backwards integration, we start at almost pure first component and end at almost pure second component
         auto fld = (m_forwards_integration) ? 1 : 0; // fluid index (0-based) for the pure fluid we are starting near
         if (imposed_variable == IMPOSED_T) {
             state.T = imposed_value;

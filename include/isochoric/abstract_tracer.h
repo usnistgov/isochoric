@@ -606,7 +606,7 @@ public:
         }
         // Do the polishing if requested
         if (!m_disable_polish) {
-            if ((imposed_variable == IMPOSED_T || imposed_variable == IMPOSED_P) && (mode == STEP_IN_RHO0 || mode == STEP_IN_RHO1 || mode == STEP_IN_P)) {
+            if ((imposed_variable == IMPOSED_T || imposed_variable == IMPOSED_P) && (mode == STEP_IN_RHO0 || mode == STEP_IN_RHO1 || mode == STEP_IN_P || STEP_PARAMETRIC)) {
                 // Store the old values
                 std::vector<TYPE> rhovec_old = rhovec;
                 try {

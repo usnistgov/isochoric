@@ -235,6 +235,12 @@ public:
     TYPE drhorTr_dxi__xj(std::size_t i) const {
         return m_ders.Tr()*m_ders.drhor_dxi__constxj(i) + m_ders.rhor()*m_ders.dTr_dxi__constxj(i);
     }
+    TYPE drhor_dxi__constxj(std::size_t i) const {
+        return m_ders.drhor_dxi__constxj(i);
+    }
+    TYPE dTr_dxi__constxj(std::size_t i) const {
+        return m_ders.dTr_dxi__constxj(i);
+    }
     TYPE d2rhorTr_dxidxj__consttaudelta(std::size_t i, std::size_t j) const {
         return (m_ders.Tr()*m_ders.d2rhor_dxidxj(i, j)
             + m_ders.dTr_dxi__constxj(j)*m_ders.drhor_dxi__constxj(i)

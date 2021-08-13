@@ -657,6 +657,9 @@ public:
                         throw CoolProp::ValueError("Unable to polish for this imposed variable");
                     }
                     int ok = true;
+                    if (m_debug_polishing) {
+                        std::cout << "Polishing success!" << std::endl;
+                    }
                 }
                 catch (std::exception &e) {
                     // There was a failure, we reset the densities to the old values

@@ -74,6 +74,7 @@ protected:
     int m_premature_termination_code = 0;
     bool m_termination_requested = false;
     int m_min_stepsize_counter = 0;
+    double m_c_parametric = 1.0;
 
     double hmin = 1e-6, hmax = 10000000;
 
@@ -87,6 +88,7 @@ protected:
         m_premature_termination_code = 0;
         m_termination_requested = false;
         m_min_stepsize_counter = 0;
+        m_c_parametric = 1.0;
     }
     EigenArray drhoLdt_old, drhoVdt_old,  drhovec_dtL_store, drhovec_dtV_store;
 public:
@@ -297,7 +299,7 @@ public:
                     /// At the end of the isotherm, we have arrived at pure component #2 (with index 1)
                     rhomolarmax = pure_sat_call("Dmolar", "T", m_T, "Q", 0, 1);
                     if (!ValidNumber(rhomolarmax)) { throw ValueError("Cannot start isotherm; temperature out of range?"); }
-                    xmax = 1e-6; xmin = 0.999*rhomolarmax;
+                    xmin = rhomolarmax; xmax = 1e-6;
                 }
                 else {
                     // We start off at pure first component, and therefore the concentration of second component
@@ -421,6 +423,32 @@ public:
         }
     }
 
+    double determine_c_parametric() {
+        if (mode == STEP_PARAMETRIC) {
+            std::vector<TYPE> rhovec(m_initial_state.rhovecL.size()*2);
+            rhovec[0] = m_initial_state.rhovecL[0];
+            rhovec[1] = m_initial_state.rhovecL[1];
+            rhovec[2] = m_initial_state.rhovecV[0];
+            rhovec[3] = m_initial_state.rhovecV[1];
+            std::vector<TYPE> f(rhovec.size());
+            derivs(m_T, rhovec, f);
+            double dt = 1e-6;
+            Eigen::ArrayXd newrho(4);
+            for (auto i = 0; i < 4; ++i) {
+                newrho[i] = rhovec[i] + dt * f[i];
+            }
+            if ((newrho < 0).any()) {
+                return -1;
+            }
+            else{
+                return 1;
+            }
+        }
+        else {
+            return 1.0;
+        }
+    }
+
     /// Calculate the system of differential equations being integrated by this class
     void derivs(TYPE t, std::vector<TYPE> &rhovec, std::vector<TYPE> &f) {
         assert(rhovec.size() % 2 == 0);
@@ -483,6 +511,15 @@ public:
                     drhovec_drhoV1_wrap(&(f[0]) + N, N);
                 drhovec_drhoL1_wrap = drhovec_dpL / drhovec_dpL(1);
                 drhovec_drhoV1_wrap = drhovec_dpV / drhovec_dpL(1);
+            }
+            else if (mode == STEP_PARAMETRIC) {
+                // Our independent variable is an analog to the arclength (or so)
+                Eigen::Map<Eigen::VectorXd> drhovecL_dt_wrap(&(f[0]), N),
+                    drhovecV_dt_wrap(&(f[0]) + N, N);
+                auto norm = [](const auto& x) {return pow(x.square().sum(), 0.5); };
+                auto dpdt = pow((norm(drhovec_dpL) + norm(drhovec_dpV)), -0.5);
+                drhovecL_dt_wrap = m_c_parametric * drhovec_dpL * dpdt;
+                drhovecV_dt_wrap = m_c_parametric * drhovec_dpV * dpdt;
             }
             else {
                 throw NotImplementedError();
@@ -750,6 +787,19 @@ public:
             m_premature_termination_code = 106;
             return true;
         }
+        // Check if the mole fraction of the first component in the gas phase has stopped changing
+        if (m_x.size() > 10) {
+            int Nlast = 10;
+            Eigen::ArrayXd lasty(Nlast);
+            for (auto i = 0; i < Nlast; ++i) {
+                lasty(i) = m_y[m_y.size()-1-i][0];
+            }
+            if (std::abs(lasty.minCoeff() - lasty.maxCoeff()) < 1e-7) {
+                m_termination_reason = "Mole fraction has converged within one part in 10^7; likely approaching critical point";
+                m_premature_termination_code = 107;
+                return true;
+            }
+        }
         return false;
     };
 
@@ -820,6 +870,9 @@ public:
 
         // Figure out what kind of integration we are going to carry out
         mode = determine_integration_type();
+
+        // Determine the tracing direction if parametric tracing
+        m_c_parametric = determine_c_parametric();
 
         // Get the specification of the ODE integration
         auto limits = get_integration_limits();

@@ -3,7 +3,7 @@
 
 #include <chrono>
 #include "ODEIntegrators.h"
-
+#include <math.h>
 
 /// This class holds the data obtained by the tracer
 template<typename TYPE = double>
@@ -853,6 +853,14 @@ public:
             set_initial_state(calc_initial_state());
             // Polish the initial state provided
             polish_initial_state();
+            for (auto i = 0; i < m_initial_state.rhovecL.size(); ++i) {
+                if (!std::isfinite(m_initial_state.rhovecL[i])) {
+                    throw ValueError("Initial rhovecL contains invalid value @ index (0-based) of " + std::to_string(i));
+                }
+                if (!std::isfinite(m_initial_state.rhovecV[i])) {
+                    throw ValueError("Initial rhovecV contains invalid value @ index (0-based) of " + std::to_string(i));
+                }
+            }
         }
         catch (std::exception &e) {
             std::string message;

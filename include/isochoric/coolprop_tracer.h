@@ -95,7 +95,14 @@ public:
             state.T = imposed_value;
             std::string backend_string = (HEOS->backend_name() == "PengRobinsonBackend") ? "PR" : "HEOS";
             g.rhomolar_liq = PropsSI("Dmolar", "Q", 0, "T", imposed_value, backend_string + "::" + fld);
+            if (!std::isfinite(g.rhomolar_liq)) {
+                throw ValueError(get_global_param_string("errstring"));
+            }
             g.rhomolar_vap = PropsSI("Dmolar", "Q", 1, "T", imposed_value, backend_string + "::" + fld);
+            if (!std::isfinite(g.rhomolar_vap)) {
+                throw ValueError(get_global_param_string("errstring"));
+            }
+            
             rho[0+imposed_index] = 0;
             rho[1-imposed_index] = g.rhomolar_liq;
             rho[2+imposed_index] = 0;

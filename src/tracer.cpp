@@ -62,6 +62,8 @@ PYBIND11_MODULE(VLEIsoTracer, m) {
         .def("set_stepping_variable", &AbstractIsolineTracer<double>::set_stepping_variable)
         .def("get_debug_polishing", &AbstractIsolineTracer<double>::get_debug_polishing)
         .def("set_debug_polishing", &AbstractIsolineTracer<double>::set_debug_polishing)
+        .def("get_c_parametric", &AbstractIsolineTracer<double>::get_c_parametric)
+        .def("set_c_parametric", &AbstractIsolineTracer<double>::set_c_parametric)
         .def("get_tracing_time", &AbstractIsolineTracer<double>::get_tracing_time)
         .def("get_max_size", &AbstractIsolineTracer<double>::get_max_size)
         .def("set_max_size", &AbstractIsolineTracer<double>::set_max_size)

@@ -75,6 +75,7 @@ protected:
     bool m_termination_requested = false;
     int m_min_stepsize_counter = 0;
     double m_c_parametric = 1.0;
+    bool c_specified = false;
 
     double hmin = 1e-6, hmax = 10000000;
 
@@ -170,6 +171,10 @@ public:
     TYPE get_timeout() const { return m_timeout; }
 
     int get_premature_termination_code() const { return m_premature_termination_code; }
+
+    double get_c_parametric() const { return m_c_parametric; }
+
+    void set_c_parametric(double c) { m_c_parametric = c; c_specified = true; }
 
     // *********************
     // Initial State Methods
@@ -882,8 +887,11 @@ public:
         // Figure out what kind of integration we are going to carry out
         mode = determine_integration_type();
 
-        // Determine the tracing direction if parametric tracing
-        m_c_parametric = determine_c_parametric();
+        // Determine the tracing direction if parametric tracing is enabled and
+        // the user has not already set the c parameter
+        if (!c_specified) {
+            m_c_parametric = determine_c_parametric();
+        }
 
         // Get the specification of the ODE integration
         auto limits = get_integration_limits();

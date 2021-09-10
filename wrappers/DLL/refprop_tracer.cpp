@@ -66,6 +66,14 @@ public:
         if (PHI0dll == nullptr) {
             throw ValueError("You must use a newer version of REFPROP that includes the PHI0dll function (version 9.1.1+)");
         }
+        if (backend == "PR") {
+            int iflag = 3; // Tell REFPROP to use Peng-Robinson without volume translation
+            PREOSdll(iflag);
+        }
+        else{
+            int iflag = 0; // Tell REFPROP to use default models
+            PREOSdll(iflag);   
+        }
         Tc = get_Tcvec(); 
         pc = get_pcvec();
     };
@@ -308,6 +316,7 @@ EXPORT_CODE void CONVENTION trace(
         bool unstable_termination = doc["unstable_termination"];
         std::string fluids = doc["fluids"];
         std::string HMX_BNC = (doc.find("hmx_path") != doc.end()) ? doc["hmx_path"] : "HMX.BNC";
+        std::string backend = (doc.find("backend") != doc.end()) ? doc["backend"] : "REFPROP";
 
         std::string shared_library_filename = "";
         std::string err = "";
@@ -319,7 +328,7 @@ EXPORT_CODE void CONVENTION trace(
         REFPROP_lib::SETPATHdll(RPpath, 255);
 
         auto var = (imposed_variable == "T") ? REFPROPIsolineTracer::IMPOSED_T : REFPROPIsolineTracer::IMPOSED_P;
-        REFPROPIsolineTracer tracer(var, imposed_value, strsplit(fluids, '&'), HMX_BNC);
+        REFPROPIsolineTracer tracer(var, imposed_value, backend, strsplit(fluids, '&'), HMX_BNC);
         tracer.set_forwards_integration(static_cast<bool>(forwards));
         tracer.polishing(polishing);
         tracer.set_max_size(Nallocated);
